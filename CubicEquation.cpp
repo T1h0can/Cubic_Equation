@@ -27,7 +27,7 @@ typedef struct _coefficients_of_equation{
 void printCoefficient(double& k);
 void printEquation(Coeff& C);
 void calcRootsOfCubicEquation(Coeff& C, Complex *roots);
-double choice_root(Complex* root, int num = 3);
+void printRoots(Complex* root, int num = 3);
 
 int main() {
     Coeff coeffi;
@@ -38,12 +38,10 @@ int main() {
         if(!cin.good())
             break;
         printEquation(coeffi);
-//    coeffi.func();
-//    printEquation(coeffi);
-        cout << "Roots of cubic equation:" << endl;
         calcRootsOfCubicEquation(coeffi, roots);
+        cout << "Roots of cubic equation:" << endl;
         for(int i = 0; i < 3; ++i) {
-            cout << "x[" << i + 1 << "] = " << roots[i] << "\t" << roots[i].real() << " + " << roots[i].imag() << "i" << endl;;
+            cout << "x[" << i + 1 << "] = " << roots[i] << " = " << roots[i].real() << " + " << roots[i].imag() << "i" << endl;;
         }
     }
     free(roots);
@@ -70,21 +68,31 @@ void printCoefficient(double& k) {                          //when koeff is nega
 
 void calcRootsOfCubicEquation(Coeff& C, Complex *roots) {
     const int num_roots = 3;
+    //x^3 +px + q = 0, x = x_ + t, t = -b/(3a)
     double p = (3 * C.a * C.c - pow(C.b, 2.)) / (3 * pow(C.a, 2.));     //p = (3ac - b^2) / 3a^2
     double q = (2 * pow(C.b, 3.) - 9 * C.a * C.b * C.c + 27 * pow(C.a, 2.) * C.d) /
                (27 * pow(C.a, 3.));                                     //q = (2b^3 - 9abc + 27*a^2*d) / 27a^3
+    double t = -C.b / (3 * C.a);
     double m = -q / 2;
     double n2 = pow(q, 2.) / 4 + pow(p, 3.) / 27;
     double n = sqrt(abs(n2));
 
-    Complex u3(m + n);                        //u3 = (-q/2 + sqrt(|(q^2) / 4 + (p^3)/27|), 0.i)
+    Complex u3;                                 //u3 = (-q/2 + sqrt(|(q^2) / 4 + (p^3)/27|), 0.i)
+    if(n2 < 0) {
+        u3.toExp(m, n);
+    } else {
+        u3.toExp(m + n, 0);
+    }
+//    cout << "u3 = " << u3 << endl;
     Complex *root_u3 = new Complex[num_roots];
     u3.roots(num_roots, root_u3);
+//    cout << "root_u:" << endl;
+//    printRoots(root_u3, num_roots);
 
-    double u, v, t;
-    u = choice_root(root_u3, num_roots);
-    v = -p / (3 * u);
-    t = -C.b / (3 * C.a);
+    Complex u, v;
+    u = root_u3[0];
+    v.toExp(-p, 0);
+    v /= (3 * u);
 
     Complex omega(1, 2 * PI / 3);   //omega = -1/2 + sqrt(3)/2 * i = e^((2PI/3)i)
     Complex omega2 = omega * omega;
@@ -94,13 +102,8 @@ void calcRootsOfCubicEquation(Coeff& C, Complex *roots) {
     roots[2] = omega2 * u + omega * v + t;        //x3 = omega2 * u + omega * v + t
 }
 
-double choice_root(Complex* root, int num) {    //3 roots, choice the real of root, which imag of root < EPS
-    double real;
-    for(int i = 0; i < num; ++i) {
-        if(root[i].arg() < EPS){
-            real = root[i].real();
-            break;
-        }
+void printRoots(Complex* root, int num) {
+    for(int i =0; i < num; ++i) {
+        cout << root[i] << endl;
     }
-    return real;
 }

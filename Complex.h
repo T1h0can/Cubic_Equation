@@ -52,6 +52,12 @@ public:
         return Complex(r, -phi);
     }
 
+    Complex& toExp(double x, double y) {
+        r = to_r(x, y);
+        phi = to_phi(x, y);
+        return *this;
+    }
+
     Complex complex_pow(int n) const {                //整数幂
         return Complex(pow(r, double(n)), phi * double(n));
     }
@@ -121,7 +127,5 @@ inline std::istream& operator>>(std::istream& s, Complex& z) {
     s >> z.radius() >> z.arg();
     return s;
 }
-
-
 
 #endif //COMPLEX_COMPLEX_H
